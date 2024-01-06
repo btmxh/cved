@@ -15,4 +15,5 @@
 #pragma gen_fn glfwTerminate
 #pragma gen_fn glClearColor number number number number
 #pragma gen_fn glClear number
+#pragma gen_fn glfwGetTime:number
 // clang-format on

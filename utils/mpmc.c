@@ -62,7 +62,7 @@ fail_alloc_mpmc:
   return false;
 }
 
-static void mpmc_free_private(mpmc *m) {
+void mpmc_free(mpmc *m) {
   if (!m->auto_grow) {
     cnd_destroy(&m->send_condvar);
   }
@@ -70,18 +70,6 @@ static void mpmc_free_private(mpmc *m) {
   mtx_destroy(&m->mutex);
   av_fifo_freep2(&m->fifo);
   free(m);
-}
-
-void mpmc_free(mpmc_sender *sender, mpmc_receiver *receiver) {
-  if (sender) {
-    mpmc_free_private(sender->m);
-    return;
-  }
-
-  if (receiver) {
-    mpmc_free_private(receiver->m);
-    return;
-  }
 }
 
 void mpmc_clone_sender(mpmc_sender *dst, mpmc_sender *src) {
@@ -187,14 +175,10 @@ i32 mpmc_receive(mpmc_receiver *receiver, const mpmc_receive_info *info) {
                   thrd_error_to_string(error));
       }
     } else {
-      log_info("begin waiting");
-
       if ((error = cnd_wait(&m->recv_condvar, &m->mutex)) != thrd_success) {
         log_error("unable to wait for condvar: %s",
                   thrd_error_to_string(error));
       }
-
-      log_info("done waiting");
     }
   }
 
@@ -219,3 +203,6 @@ i32 mpmc_receive(mpmc_receiver *receiver, const mpmc_receive_info *info) {
 
   return num_read;
 }
+
+i32 mpmc_hint_num_sendable(mpmc *m) { return av_fifo_can_write(m->fifo); }
+i32 mpmc_hint_num_recvable(mpmc *m) { return av_fifo_can_read(m->fifo); }

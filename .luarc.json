@@ -4,6 +4,7 @@
     "glClearColor",
     "glClear",
     "GL_COLOR_BUFFER_BIT",
-    "setDrawCallback"
+    "setDrawCallback",
+    "glfwGetTime"
   ]
 }

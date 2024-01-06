@@ -10,7 +10,8 @@ def get_c_type(t):
         'pointer': 'const void*',
         'number': 'lua_Number',
         'thread': 'lua_State*',
-        'userdata': 'void*'
+        'lightuserdata': 'void*',
+        'userdata': 'void*',
     }.get(t, None)
 
 
@@ -65,12 +66,15 @@ for line_number, line in enumerate(sys.stdin):
         arg_names = []
         for i, func_arg in enumerate(args[1:]):
             c_type = get_c_type(func_arg)
+            getfn = f"luaL_check{func_arg}"
+            if func_arg.endswith('lightuserdata'):
+                getfn = "lua_touserdata"
 
             if c_type is None:
                 raise ValueError(f"invalid type '{func_arg}'")
             arg_name = f'arg_{i + 1}'
             print(
-                f'{indent}{c_type} {arg_name} =  luaL_check{func_arg}(L, {i + 1});')
+                f'{indent}{c_type} {arg_name} = {getfn}(L, {i + 1});')
             arg_names.append(arg_name)
         func_invoke = f'{func_name}({", ".join(arg_names)})'
         if return_type is not None:

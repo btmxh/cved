@@ -8,10 +8,13 @@ else
 endif
 
 BINDINGS_CFLAGS = -O0 -ggdb ${DEBUG_FLAGS}
-CFLAGS=-Wall -Wextra -Werror ${BINDINGS_CFLAGS}
+CFLAGS=-Wall -Wextra ${BINDINGS_CFLAGS}
 
-OBJ = main.o mpmc.o read_thread.o bindings/gl.o
-LIBS=-lglfw -lglad -llog -lm -llua -lavcodec -lavformat -lavutil
+OBJ = main.o utils/mpmc.o media/read_thread.o media/decode_thread.o \
+			bindings/gl.o bindings/ffmpeg.o graphics/shader.o utils/filewatch_inotify.o \
+			utils/fs_linux.o audio/al_util.o
+LIBS=-lglfw -lglad -llog -lm -llua -lavcodec -lavformat -lavutil -lswresample \
+		 -ltimespec -lopenal
 
 cved: $(OBJ)
 	$(CC) -o $@ $^ $(LIBS) $(CFLAGS)
@@ -24,4 +27,4 @@ bindings/%.c: bindings/%.cxx
 
 .PHONY: clean
 clean:
-	rm -f *.o bindings/*.o bindings/*.c cved
+	rm -f *.o */**.o bindings/*.c cved

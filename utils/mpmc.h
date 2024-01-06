@@ -30,10 +30,6 @@ typedef struct {
 
 bool mpmc_init(const mpmc_init_info *info, mpmc_sender *sender,
                mpmc_receiver *receiver);
-// pass NULL if sender/receiver is on another thread
-// no refcount, so make sure that no other senders and receivers are in use
-void mpmc_free(mpmc_sender *sender, mpmc_receiver *receiver);
-
 void mpmc_clone_sender(mpmc_sender *dst, mpmc_sender *src);
 void mpmc_clone_receiver(mpmc_receiver *dst, mpmc_receiver *src);
 
@@ -57,3 +53,11 @@ typedef struct {
 
 i32 mpmc_send(mpmc_sender *sender, const mpmc_send_info *info);
 i32 mpmc_receive(mpmc_receiver *receiver, const mpmc_receive_info *info);
+
+#define MPMC_COMMON_HANDLE(mpmc) (mpmc).m
+// pass NULL if sender/receiver is on another thread
+// no refcount, so make sure that no other senders and receivers are in use
+void mpmc_free(mpmc *m);
+i32 mpmc_num_messages(mpmc *m);
+i32 mpmc_hint_num_sendable(mpmc *m);
+i32 mpmc_hint_num_recvable(mpmc *m);
